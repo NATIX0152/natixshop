@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}</style>
+<title>Compte à vendre</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: écran d'accès en deux colonnes (présentation / formulaire), puis coffre = rail de catégories + liste de lignes de mots de passe. */
+:root{
+  --bg:#F2F3F7; --surface:#FFFFFF; --ink:#14171F; --muted:#5A6172; --line:#DCDFE8;
+  --accent:#C48A00; --accent-soft:#FBF1D6; --danger:#B42318; --ok:#17794A;
+  --btn:#14171F; --btn-ink:#FFFFFF; --field:#F7F8FB;
+  --f-display:"Bricolage Grotesque","Trebuchet MS",sans-serif;
+  --f-body:"Hanken Grotesk","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1117; --surface:#171B24; --ink:#ECEEF3; --muted:#98A0B3; --line:#2A3040;
+    --accent:#E3B341; --accent-soft:#2A2412; --danger:#F97066; --ok:#47CD89;
+    --btn:#ECEEF3; --btn-ink:#0E1117; --field:#11151D; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#171B24; --ink:#ECEEF3; --muted:#98A0B3; --line:#2A3040;
+  --accent:#E3B341; --accent-soft:#2A2412; --danger:#F97066; --ok:#47CD89;
+  --btn:#ECEEF3; --btn-ink:#0E1117; --field:#11151D; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto}
+.btn{background:var(--btn);color:var(--btn-ink);border:0;border-radius:8px;padding:9px 16px;font-weight:600}
+.btn:hover{opacity:.9}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--muted)}
+.btn.sm{padding:5px 10px;font-size:13px;border-radius:6px}
+.btn.danger{color:var(--danger);border-color:var(--danger)}
+input,select,textarea{width:100%;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:9px 11px;min-width:0}
+label{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.msg{min-height:20px;font-size:14px;color:var(--danger)}
+.msg.ok{color:var(--ok)}
+.small{font-size:13px;color:var(--muted)}
+.mono{font-family:var(--f-mono)}
+
+/* accès */
+.auth{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center;min-height:calc(100vh - 80px)}
+.intro h1{font-size:clamp(34px,6vw,56px);line-height:1.02;margin-bottom:16px}
+.intro p{max-width:46ch;color:var(--muted);margin:0 0 22px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px 5px 10px;font-size:14px;font-weight:500}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;display:inline-block}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:14px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:10px;padding:3px;background:var(--field)}
+.tabs button{border:0;background:transparent;padding:8px;border-radius:7px;font-weight:600;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.linkbtn{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;font-size:13px;text-align:left}
+
+/* coffre */
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{font-family:var(--f-display);font-weight:700;font-size:22px}
+.brand small{font-family:var(--f-body);font-weight:500;font-size:13px;color:var(--muted);margin-left:8px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.shell{display:grid;grid-template-columns:210px minmax(0,1fr);gap:24px;align-items:start}
+.side{display:flex;flex-direction:column;gap:2px;position:sticky;top:12px}
+.side button.cat{display:flex;align-items:center;gap:10px;background:transparent;border:0;border-radius:8px;padding:8px 10px;text-align:left;font-weight:500}
+.side button.cat:hover{background:var(--surface)}
+.side button.cat[aria-current="true"]{background:var(--surface);box-shadow:0 0 0 1px var(--line);font-weight:600}
+.side .n{margin-left:auto;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.side .add{margin-top:8px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:end;justify-content:space-between;margin-bottom:14px}
+.bar h2{font-size:28px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;flex:1;justify-content:flex-end;min-width:0}
+.tools input{max-width:220px}
+.tools select{max-width:160px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto;gap:14px;align-items:center}
+.who{display:flex;flex-direction:column;gap:2px;min-width:0}
+.who b{display:flex;align-items:center;gap:8px;font-weight:600}
+.who .cn{font-size:13px;color:var(--muted);padding-left:18px}
+.who .note{font-size:13px;color:var(--muted);padding-left:18px;overflow-wrap:anywhere}
+.vals{display:grid;gap:6px;min-width:0}
+.val{display:flex;align-items:center;gap:8px;min-width:0}
+.val code{font-family:var(--f-mono);font-size:13.5px;background:var(--field);border:1px solid var(--line);border-radius:6px;padding:3px 8px;overflow-wrap:anywhere;min-width:0;flex:1}
+.val .k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);width:34px;flex:none}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:28px;color:var(--muted);text-align:center}
+.pwrow{display:flex;gap:8px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--btn);color:var(--btn-ink);padding:9px 16px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+.banner{background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:10px 14px;font-size:14px;margin-bottom:14px}
+textarea{font-family:var(--f-mono);font-size:12px;min-height:110px;resize:vertical}
+
+@media (max-width:820px){
+  .auth{grid-template-columns:1fr;gap:24px;min-height:0}
+  .shell{grid-template-columns:minmax(0,1fr);gap:14px}
+  .side{position:static;flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px}
+  .side button.cat{white-space:nowrap;border:1px solid var(--line);background:var(--surface);flex:none}
+  .side .add{margin-top:0}
+  .item{grid-template-columns:minmax(0,1fr)}
+  .acts{justify-content:flex-start}
+  .grid2{grid-template-columns:1fr}
+  .tools{justify-content:flex-start}
+  .tools input,.tools select{max-width:none;flex:1 1 140px}
+}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+var KEY="coffre_famille_v1", ITER=250000;
+var enc=new TextEncoder(), dec=new TextDecoder();
+var mem={}, storageOK=true;
+var DEFAULT_CATS=[
+  {id:"netflix",name:"Netflix",color:"#E50914"},
+  {id:"duolingo",name:"Duolingo",color:"#58CC02"},
+  {id:"disney",name:"Disney+",color:"#2A5BE0"},
+  {id:"crunchyroll",name:"Crunchyroll",color:"#F47521"},
+  {id:"discord",name:"Discord",color:"#5865F2"},
+  {id:"fortnite",name:"Fortnite",color:"#9B5CF6"}
+];
+var EXTRA_COLORS=["#0EA5A5","#D6336C","#C48A00","#6B7280","#2F9E44"];
+
+function load(){try{var r=localStorage.getItem(KEY);return r?JSON.parse(r):{};}catch(e){storageOK=false;return mem;}}
+function save(a){mem=a;try{localStorage.setItem(KEY,JSON.stringify(a));}catch(e){storageOK=false;}}
+function b64(u){var s="";for(var i=0;i<u.length;i+=8192){s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));}return btoa(s);}
+function unb64(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+async function derive(pw,salt){
+  var base=await crypto.subtle.importKey("raw",enc.encode(pw),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt:salt,iterations:ITER,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+async function seal(key,obj){
+  var iv=crypto.getRandomValues(new Uint8Array(12));
+  var ct=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},key,enc.encode(JSON.stringify(obj)));
+  return {iv:b64(iv),data:b64(new Uint8Array(ct))};
+}
+async function open(key,rec){
+  var pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(rec.iv)},key,unb64(rec.data));
+  return JSON.parse(dec.decode(pt));
+}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+var $=function(s,r){return (r||document).querySelector(s);};
+
+var S={mode:"login",restore:false,user:null,key:null,salt:null,vault:null,cat:"all",q:"",member:"",editing:null,shown:{},confirmDel:null,addingCat:false,backup:false,timer:null};
+var app=$("#app");
+
+function toast(t){var el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){el.classList.remove("on");},1600);}
+function copy(text){
+  var done=function(){toast("Copié");};
+  var fb=function(){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){toast("Copie impossible");}ta.remove();};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,fb);}else fb();
+}
+function genPass(){
+  var set="abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%&*?";
+  var r=crypto.getRandomValues(new Uint32Array(18)),s="";
+  for(var i=0;i<18;i++)s+=set[r[i]%set.length];
+  return s;
+}
+
+/* ---------- Écran d'accès ---------- */
+function renderAuth(msg,ok){
+  var creating=S.mode==="create";
+  var chips=DEFAULT_CATS.map(function(c){return '<span class="chip"><span class="dot" style="background:'+c.color+'"></span>'+esc(c.name)+'</span>';}).join("");
+  var form;
+  if(S.restore){
+    form='<h3>Restaurer une sauvegarde</h3><p class="small" style="margin:0">Colle ici le texte de sauvegarde exporté depuis le coffre d\'un autre appareil. Le mot de passe principal reste le même.</p>'+
+      '<div><label for="rb">Sauvegarde</label><textarea id="rb" spellcheck="false"></textarea></div>'+
+      '<div class="msg'+(ok?" ok":"")+'" id="msg">'+esc(msg||"")+'</div>'+
+      '<div class="row"><button class="btn" data-act="doRestore">Restaurer</button><button class="btn ghost" data-act="closeRestore">Retour</button></div>';
+  }else{
+    form='<div class="tabs" role="tablist"><button role="tab" aria-selected="'+(!creating)+'" data-act="tab" data-m="login">Connexion</button><button role="tab" aria-selected="'+creating+'" data-act="tab" data-m="create">Créer un compte</button></div>'+
+      '<form id="authForm" class="card" style="border:0;padding:0" autocomplete="off">'+
+      '<div><label for="au">Pseudo</label><input id="au" required maxlength="40" autocapitalize="none" autocomplete="username"></div>'+
+      '<div><label for="ap">Mot de passe principal</label><input id="ap" type="password" required autocomplete="'+(creating?"new-password":"current-password")+'"></div>'+
+      (creating?'<div><label for="ap2">Confirmer le mot de passe</label><input id="ap2" type="password" required autocomplete="new-password"></div>':'')+
+      '<div class="msg'+(ok?" ok":"")+'" id="msg">'+esc(msg||"")+'</div>'+
+      '<button class="btn" type="submit" id="go">'+(creating?"Créer mon coffre":"Ouvrir mon coffre")+'</button></form>'+
+      '<p class="small" style="margin:0">'+(creating?"8 caractères minimum. Si tu oublies ce mot de passe, le coffre ne peut pas être récupéré.":"Chaque personne peut avoir son propre compte et son propre coffre.")+'</p>'+
+      '<button class="linkbtn" data-act="openRestore">Restaurer une sauvegarde</button>';
+  }
+  app.innerHTML='<main class="auth"><section class="intro"><h1>Compte à vendre</h1>'+
+    '<p>Un endroit pour ranger les mots de passe de tes comptes à vendre, classés par service. Tout est chiffré dans ton navigateur avant d\'être enregistré.</p>'+
+    '<div class="chips">'+chips+'</div></section><section class="card">'+form+'</section></main>';
+  var f=$("#authForm");if(f){f.addEventListener("submit",onAuth);$("#au").focus();}
+}
+async function onAuth(e){
+  e.preventDefault();
+  var u=$("#au").value.trim().toLowerCase(), p=$("#ap").value, creating=S.mode==="create";
+  var accounts=load();
+  $("#go").disabled=true;
+  try{
+    if(creating){
+      if(accounts[u]){S.mode="login";renderAuth("Un compte « "+u+" » existe déjà sur cet appareil. Connecte-toi avec son mot de passe.");$("#au").value=u;return;}
+      if(p.length<8){$("#msg").textContent="Le mot de passe doit faire au moins 8 caractères.";return;}
+      if(p!==$("#ap2").value){$("#msg").textContent="Les deux mots de passe ne sont pas identiques.";return;}
+      var salt=crypto.getRandomValues(new Uint8Array(16));
+      var key=await derive(p,salt);
+      var vault={cats:DEFAULT_CATS.slice(),members:["Moi"],items:[]};
+      var rec=await seal(key,vault);rec.salt=b64(salt);
+      accounts[u]=rec;save(accounts);
+      start(u,key,rec.salt,vault);
+    }else{
+      var r=accounts[u];
+      if(!r){S.mode="create";renderAuth("Aucun compte « "+u+" » sur cet appareil. Crée-le ici.");$("#au").value=u;return;}
+      var k=await derive(p,unb64(r.salt));
+      var v;
+      try{v=await open(k,r);}catch(x){$("#msg").textContent="Mot de passe incorrect.";return;}
+      start(u,k,r.salt,v);
+    }
+  }catch(err){$("#msg").textContent="Erreur : "+(err&&err.message?err.message:"impossible d'ouvrir le coffre.");}
+  finally{var g=$("#go");if(g)g.disabled=false;}
+}
+function start(u,key,salt,vault){
+  S.user=u;S.key=key;S.salt=salt;S.vault=vault;S.cat="all";S.q="";S.member="";S.editing=null;S.shown={};S.confirmDel=null;S.backup=false;
+  resetTimer();renderVault();
+}
+function lock(){
+  S.user=null;S.key=null;S.vault=null;S.mode="login";clearTimeout(S.timer);renderAuth("Coffre verrouillé.",true);
+}
+function resetTimer(){clearTimeout(S.timer);if(S.user)S.timer=setTimeout(lock,5*60*1000);}
+["click","keydown","touchstart"].forEach(function(ev){document.addEventListener(ev,function(){if(S.user)resetTimer();},{passive:true});});
+
+async function persist(){
+  var rec=await seal(S.key,S.vault);rec.salt=S.salt;
+  var a=load();a[S.user]=rec;save(a);
+}
+
+/* ---------- Coffre ---------- */
+function catById(id){return S.vault.cats.filter(function(c){return c.id===id;})[0]||{name:"Autre",color:"#6B7280"};}
+function renderVault(){
+  app.innerHTML=
+    '<header class="top"><div class="brand">Compte à vendre<small>'+esc(S.user)+'</small></div>'+
+    '<div class="row"><button class="btn ghost sm" data-act="backup">Sauvegarde</button><button class="btn sm" data-act="lock">Verrouiller</button></div></header>'+
+    (storageOK?'':'<div class="banner">Le stockage du navigateur est bloqué ici : tes données seront perdues à la fermeture de la page. Utilise « Sauvegarde » pour les conserver.</div>')+
+    '<div id="backupWrap"></div>'+
+    '<div class="shell"><nav class="side" id="side" aria-label="Catégories"></nav>'+
+    '<section><div class="bar"><div><h2 id="title"></h2><div class="small" id="count"></div></div>'+
+    '<div class="tools"><input id="q" type="search" placeholder="Rechercher" aria-label="Rechercher"><select id="mf" aria-label="Filtrer par personne"></select><button class="btn" data-act="new">Ajouter</button></div></div>'+
+    '<div id="formWrap"></div><ul class="list" id="list"></ul></section></div>';
+  $("#q").addEventListener("input",function(e){S.q=e.target.value;renderList();});
+  $("#mf").addEventListener("change",function(e){S.member=e.target.value;renderList();});
+  renderSide();renderList();renderBackup();
+}
+function renderSide(){
+  var v=S.vault;
+  var html='<button class="cat" data-act="cat" data-id="all" aria-current="'+(S.cat==="all")+'"><span class="dot" style="background:var(--muted)"></span>Tout<span class="n">'+v.items.length+'</span></button>';
+  v.cats.forEach(function(c){
+    var n=v.items.filter(function(i){return i.cat===c.id;}).length;
+    html+='<button class="cat" data-act="cat" data-id="'+esc(c.id)+'" aria-current="'+(S.cat===c.id)+'"><span class="dot" style="background:'+c.color+'"></span>'+esc(c.name)+'<span class="n">'+n+'</span></button>';
+  });
+  if(S.addingCat){
+    html+='<form id="catForm" class="add"><label for="cn">Nouvelle catégorie</label><input id="cn" maxlength="30" placeholder="Ex. Spotify" required><div class="row" style="margin-top:6px"><button class="btn sm" type="submit">Ajouter</button><button type="button" class="btn ghost sm" data-act="cancelCat">Annuler</button></div></form>';
+  }else{
+    html+='<button class="btn ghost sm add" data-act="addCat">+ Catégorie</button>';
+  }
+  var side=$("#side");side.innerHTML=html;
+  var cf=$("#catForm");
+  if(cf){$("#cn").focus();cf.addEventListener("submit",async function(e){
+    e.preventDefault();var name=$("#cn").value.trim();if(!name)return;
+    var color=EXTRA_COLORS[(v.cats.length-DEFAULT_CATS.length)%EXTRA_COLORS.length];
+    var c={id:uid(),name:name,color:color};v.cats.push(c);S.cat=c.id;S.addingCat=false;
+    await persist();renderSide();renderList();
+  });}
+}
+function visibleItems(){
+  var q=S.q.trim().toLowerCase();
+  return S.vault.items.filter(function(i){
+    if(S.cat!=="all"&&i.cat!==S.cat)return false;
+    if(S.member&&i.member!==S.member)return false;
+    if(q){var hay=(i.member+" "+i.login+" "+i.note+" "+catById(i.cat).name).toLowerCase();if(hay.indexOf(q)<0)return false;}
+    return true;
+  });
+}
+function renderList(){
+  var v=S.vault;
+  var cat=S.cat==="all"?null:catById(S.cat);
+  $("#title").textContent=cat?cat.name:"Tous les comptes";
+  var members=[];v.items.forEach(function(i){if(i.member&&members.indexOf(i.member)<0)members.push(i.member);});
+  var mf=$("#mf");
+  mf.innerHTML='<option value="">Tous les comptes à vendre</option>'+members.map(function(m){return '<option'+(m===S.member?" selected":"")+'>'+esc(m)+'</option>';}).join("");
+  var items=visibleItems();
+  $("#count").textContent=items.length+(items.length>1?" comptes":" compte");
+  var fw=$("#formWrap");
+  if(S.editing){renderForm(fw);}else{fw.innerHTML="";}
+  var ul=$("#list");
+  if(!items.length){
+    ul.innerHTML='<li class="empty">'+(v.items.length?"Aucun résultat avec ces filtres.":"Aucun mot de passe pour le moment. Choisis une catégorie puis appuie sur « Ajouter » pour ranger le premier.")+'</li>';
+    return;
+  }
+  ul.innerHTML=items.map(function(i){
+    var c=catById(i.cat),shown=!!S.shown[i.id];
+    return '<li class="item"><div class="who"><b><span class="dot" style="background:'+c.color+'"></span>'+esc(i.member||"Sans nom")+'</b><span class="cn">'+esc(c.name)+'</span>'+(i.note?'<span class="note">'+esc(i.note)+'</span>':'')+'</div>'+
+      '<div class="vals"><div class="val"><span class="k">ID</span><code>'+esc(i.login||"—")+'</code><button class="btn ghost sm" data-act="copyLogin" data-id="'+i.id+'">Copier</button></div>'+
+      '<div class="val"><span class="k">MDP</span><code>'+(shown?esc(i.pass):"••••••••••")+'</code><button class="btn ghost sm" data-act="copyPass" data-id="'+i.id+'">Copier</button></div></div>'+
+      '<div class="acts"><button class="btn ghost sm" data-act="toggle" data-id="'+i.id+'">'+(shown?"Masquer":"Voir")+'</button>'+
+      '<button class="btn ghost sm" data-act="edit" data-id="'+i.id+'">Modifier</button>'+
+      '<button class="btn ghost sm'+(S.confirmDel===i.id?" danger":"")+'" data-act="del" data-id="'+i.id+'">'+(S.confirmDel===i.id?"Confirmer ?":"Supprimer")+'</button></div></li>';
+  }).join("");
+}
+function renderForm(fw){
+  var e=S.editing, it=e==="new"?{cat:S.cat==="all"?S.vault.cats[0].id:S.cat,member:"",login:"",pass:"",note:""}:e;
+  var members=[];S.vault.items.forEach(function(i){if(i.member&&members.indexOf(i.member)<0)members.push(i.member);});
+  S.vault.members.forEach(function(m){if(members.indexOf(m)<0)members.push(m);});
+  fw.innerHTML='<form class="panel" id="itemForm" autocomplete="off"><h3 style="margin-bottom:12px">'+(e==="new"?"Nouveau compte":"Modifier le compte")+'</h3>'+
+    '<div class="grid2"><div><label for="fc">Catégorie</label><select id="fc">'+S.vault.cats.map(function(c){return '<option value="'+esc(c.id)+'"'+(c.id===it.cat?" selected":"")+'>'+esc(c.name)+'</option>';}).join("")+'</select></div>'+
+    '<div><label for="fm">Pour qui</label><input id="fm" list="ml" maxlength="40" placeholder="Compte à vendre" value="'+esc(it.member)+'"><datalist id="ml">'+members.map(function(m){return '<option value="'+esc(m)+'">';}).join("")+'</datalist></div>'+
+    '<div><label for="fl">Identifiant ou e-mail</label><input id="fl" autocapitalize="none" value="'+esc(it.login)+'"></div>'+
+    '<div><label for="fp">Mot de passe</label><div class="pwrow"><input id="fp" class="mono" value="'+esc(it.pass)+'"><button type="button" class="btn ghost sm" data-act="gen">Générer</button></div></div></div>'+
+    '<div style="margin-top:12px"><label for="fn">Note (facultatif)</label><input id="fn" maxlength="120" value="'+esc(it.note)+'"></div>'+
+    '<div class="msg" id="fmsg"></div><div class="row"><button class="btn" type="submit">Enregistrer</button><button type="button" class="btn ghost" data-act="cancelForm">Annuler</button></div></form>';
+  $("#itemForm").addEventListener("submit",async function(ev){
+    ev.preventDefault();
+    var d={cat:$("#fc").value,member:$("#fm").value.trim(),login:$("#fl").value.trim(),pass:$("#fp").value,note:$("#fn").value.trim()};
+    if(!d.login&&!d.pass){$("#fmsg").textContent="Renseigne au moins un identifiant ou un mot de passe.";return;}
+    if(d.member&&S.vault.members.indexOf(d.member)<0)S.vault.members.push(d.member);
+    if(S.editing==="new"){d.id=uid();d.updated=Date.now();S.vault.items.push(d);}
+    else{Object.assign(S.editing,d,{updated:Date.now()});}
+    S.editing=null;
+    await persist();renderSide();renderList();toast("Enregistré");
+  });
+  $("#fm").focus();
+}
+function renderBackup(){
+  var w=$("#backupWrap");if(!w)return;
+  if(!S.backup){w.innerHTML="";return;}
+  var rec=load()[S.user];
+  var blob=JSON.stringify({u:S.user,rec:rec});
+  w.innerHTML='<div class="panel"><h3 style="margin-bottom:6px">Sauvegarde</h3><p class="small" style="margin:0 0 10px">Ce texte contient ton coffre chiffré. Copie-le dans un endroit sûr (messagerie à toi-même, gestionnaire de notes). Sans ton mot de passe principal, il est illisible. Pour le restaurer sur un autre appareil, utilise « Restaurer une sauvegarde » sur l\'écran de connexion.</p>'+
+    '<textarea id="bk" readonly spellcheck="false">'+esc(blob)+'</textarea><div class="row" style="margin-top:10px"><button class="btn sm" data-act="copyBk">Copier la sauvegarde</button><button class="btn ghost sm" data-act="closeBackup">Fermer</button></div></div>';
+}
+
+/* ---------- Actions ---------- */
+app.addEventListener("click",async function(e){
+  var t=e.target.closest("[data-act]");if(!t)return;
+  var act=t.dataset.act,id=t.dataset.id,it;
+  if(S.user&&id)it=S.vault.items.filter(function(x){return x.id===id;})[0];
+  switch(act){
+    case "tab":S.mode=t.dataset.m;renderAuth();break;
+    case "openRestore":S.restore=true;renderAuth();break;
+    case "closeRestore":S.restore=false;renderAuth();break;
+    case "doRestore":{
+      try{
+        var o=JSON.parse($("#rb").value.trim());
+        if(!o||!o.u||!o.rec||!o.rec.salt||!o.rec.iv||!o.rec.data)throw 0;
+        var a=load();
+        if(a[o.u]){renderAuth("Un compte « "+o.u+" » existe déjà sur cet appareil.");break;}
+        a[o.u]=o.rec;save(a);S.restore=false;S.mode="login";
+        renderAuth("Compte « "+o.u+" » restauré. Connecte-toi avec son mot de passe principal.",true);
+      }catch(x){renderAuth("Sauvegarde invalide. Vérifie que tu as collé tout le texte.");}
+      break;}
+    case "lock":lock();break;
+    case "backup":S.backup=!S.backup;renderBackup();break;
+    case "closeBackup":S.backup=false;renderBackup();break;
+    case "copyBk":copy($("#bk").value);break;
+    case "cat":S.cat=id;S.editing=null;renderSide();renderList();break;
+    case "addCat":S.addingCat=true;renderSide();break;
+    case "cancelCat":S.addingCat=false;renderSide();break;
+    case "new":S.editing="new";renderList();break;
+    case "cancelForm":S.editing=null;renderList();break;
+    case "gen":$("#fp").value=genPass();break;
+    case "edit":if(it){S.editing=it;renderList();$("#formWrap").scrollIntoView({block:"nearest"});}break;
+    case "toggle":S.shown[id]=!S.shown[id];renderList();break;
+    case "copyLogin":if(it)copy(it.login);break;
+    case "copyPass":if(it)copy(it.pass);break;
+    case "del":
+      if(S.confirmDel===id){
+        S.vault.items=S.vault.items.filter(function(x){return x.id!==id;});S.confirmDel=null;
+        await persist();renderSide();renderList();toast("Supprimé");
+      }else{S.confirmDel=id;renderList();}
+      break;
+  }
+});
+renderAuth();
+})();
+</script>
+
+</body>
+</html>
